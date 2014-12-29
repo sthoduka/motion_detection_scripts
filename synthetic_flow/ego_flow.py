@@ -2,6 +2,7 @@
 
 import math
 import numpy as np
+import random
 
 class EgomotionFlow:
     def __init__(self):
@@ -19,7 +20,8 @@ class EgomotionFlow:
         return self.length, 0.0
 
     def move_right(self, x, y):
-        return -self.length, 0.0 
+        return self.length*(random.random() - 0.5)-self.length, 0.1*self.length*(random.random() - 0.5)
+        #return -self.length, 0.0
 
     def rotate_ccw(self, x, y):
         theta = np.arctan2(y,x) + np.pi / 2.0
