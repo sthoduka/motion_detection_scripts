@@ -7,7 +7,9 @@ class CompareAreas:
     # frame_number, left, top, right, bottom
     def read_kitti_file(self, filename):
         data = np.genfromtxt(filename, dtype=np.float64, delimiter=' ', usecols=(0,6,7,8,9))
-        return data.astype(int)
+        object_type = np.genfromtxt(filename, dtype=None, delimiter=' ', usecols=(2))
+        new_data = data[np.where(object_type != "DontCare")]
+        return new_data.astype(int)
     
     def read_motion_detection_file(self, filename):
         data = np.genfromtxt(filename, dtype=None, delimiter=',', usecols=(0,2,3,4,5))
