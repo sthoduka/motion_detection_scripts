@@ -34,6 +34,9 @@ for i in xrange(dx.shape[0]):
         if dx[i,j] != 0.0 or dy[i,j] != 0.0:
             plt.arrow(i, j, dx[i,j], dy[i,j], head_width=3.0, head_length=0.8, fc='k', ec='k')
 
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title("Simulated optical flow vectors")
 plt.show(block=False)
 
 plt.figure()
@@ -44,6 +47,9 @@ traj = np.loadtxt("test.out", dtype=np.float64, delimiter=',')
 trajcopy = traj.copy()
 residuals, index = get_fit_error(trajcopy, 2)
 plt.plot(residuals)
+plt.xlabel("Trajectory index")
+plt.ylabel("Residual")
+plt.title("Subspace fit residual")
 plt.show(block=False)
 
 
@@ -51,13 +57,18 @@ plt.show(block=False)
 plt.figure()
 plt.ylim([0,height])
 plt.xlim([0,width])
+#plt.gca().set_color_cycle(['#1B9E77', '#D95F02', '#7570B3', '#E7298A', '#66A61E', '#E6AB02', '#A6761D', '#666666'])
+plt.gca().set_color_cycle(['k', 'k', 'k', 'k', 'k', 'k', 'k','k'])
 for idx, t in enumerate(traj):
     if idx in index:
         x = t[::2]
         y = t[1::2]
         d = np.vstack((x,y))
         d =  d.T
-        plt.plot(d[:,0], d[:,1])
+        plt.plot(d[:,0], d[:,1],linewidth=2.0)
+plt.title("Trajectories used to define the subspace")
+plt.xlabel("X")
+plt.ylabel("Y")
 plt.show(block=False)
 
 plt.figure()
@@ -68,4 +79,7 @@ for idx,r in enumerate(residuals):
     if r > 0.00002:
         plt.scatter(traj[idx,-4], traj[idx,-3])
 
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title("Outlier points")
 plt.show()

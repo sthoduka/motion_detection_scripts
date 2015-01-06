@@ -41,15 +41,10 @@ class CompareAreas:
         else:
             tpr = tp / float(tp + fn)
         if tp + fp == 0.0:
-            ppv = 0.0
+            precision = 0.0
         else:
-            ppv = tp / float(tp + fp)
-        if ppv != 0.0:
-            fdr = 1.0 - ppv
-        else:
-            fdr = 0.0
-        #return [np.sum(tp), np.sum(fp), np.sum(fn), np.sum(tn)]
-        return [accuracy, tpr ,ppv, fdr]
+            precision = tp / float(tp + fp)
+        return [tpr, precision, accuracy]
 
     def get_area_match_list(self, gt_file, md_file, width, height):
         gt = self.read_kitti_file(gt_file)
@@ -69,12 +64,45 @@ class CompareAreas:
         return match_list
 
 rd = CompareAreas()
-#match_list = rd.get_area_match_list("0012.txt", "0012.log", 1242, 375)
-match_list = rd.get_area_match_list("0015.txt", "0015.log", 1224, 370)
-#match_list = rd.get_area_match_list("0000.txt", "0000_md.log", 1242, 375)
-acc, = plt.plot(match_list[:,0], label="Accuracy")
-tpr, = plt.plot(match_list[:,1], label="TPR")
-ppv, = plt.plot(match_list[:,2], label="PPV")
-fdr, = plt.plot(match_list[:,3], label="FDR")
-plt.legend([acc, tpr, ppv, fdr], ["Accuracy", "TPR", "PPV", "FDR"])
-plt.show()
+match_list = rd.get_area_match_list("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
+
+tpr, = plt.plot(match_list[:,0], label="TPR")
+precision, = plt.plot(match_list[:,1], label="Precision")
+acc, = plt.plot(match_list[:,2], label="Accuracy")
+plt.legend([tpr, precision, acc], ["TPR", "Precision", "Accuracy"])
+plt.title("Sequence 0000")
+plt.xlabel("Frame number")
+plt.show(block=False)
+
+plt.figure()
+
+match_list = rd.get_area_match_list("motion_gt/0001_motion.txt", "motion_md/0001.log", 1242, 375)
+tpr, = plt.plot(match_list[:,0], label="TPR")
+precision, = plt.plot(match_list[:,1], label="Precision")
+acc, = plt.plot(match_list[:,2], label="Accuracy")
+plt.legend([tpr, precision, acc], ["TPR", "Precision", "Accuracy"])
+plt.title("Sequence 0001")
+plt.xlabel("Frame number")
+plt.show(block=False)
+
+plt.figure()
+
+match_list = rd.get_area_match_list("motion_gt/0002_motion.txt", "motion_md/0002.log", 1242, 375)
+tpr, = plt.plot(match_list[:,0], label="TPR")
+precision, = plt.plot(match_list[:,1], label="Precision")
+acc, = plt.plot(match_list[:,2], label="Accuracy")
+plt.legend([tpr, precision, acc], ["TPR", "Precision", "Accuracy"])
+plt.title("Sequence 0002")
+plt.xlabel("Frame number")
+plt.show(block=False)
+
+plt.figure()
+
+match_list = rd.get_area_match_list("motion_gt/0003_motion.txt", "motion_md/0003.log", 1242, 375)
+tpr, = plt.plot(match_list[:,0], label="TPR")
+precision, = plt.plot(match_list[:,1], label="Precision")
+acc, = plt.plot(match_list[:,2], label="Accuracy")
+plt.legend([tpr, precision, acc], ["TPR", "Precision", "Accuracy"])
+plt.title("Sequence 0003")
+plt.xlabel("Frame number")
+plt.show(block=True)
