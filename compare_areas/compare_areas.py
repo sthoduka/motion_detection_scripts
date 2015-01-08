@@ -10,9 +10,20 @@ class CompareAreas:
         object_type = np.genfromtxt(filename, dtype=None, delimiter=' ', usecols=(2))
         new_data = data[np.where(object_type != "DontCare")]
         return new_data.astype(int)
-    
+
+    # frame number, object id, left, top, right, bottom
+    def read_kitti_file_with_id(self, filename):
+        data = np.genfromtxt(filename, dtype=np.float64, delimiter=' ', usecols=(0,1,6,7,8,9))
+        return data.astype(int)
+
+    # frame number, left, top, right, bottom
     def read_motion_detection_file(self, filename):
         data = np.genfromtxt(filename, dtype=None, delimiter=',', usecols=(0,2,3,4,5))
+        return data
+    
+    # frame number, object id, left, top, right, bottom
+    def read_motion_detection_file_with_id(self, filename):
+        data = np.genfromtxt(filename, dtype=None, delimiter=',', usecols=(0,1,2,3,4,5))
         return data
 
     def construct_mask(self, width, height, frame_number, data, start_index):
@@ -62,6 +73,12 @@ class CompareAreas:
             frame_number += 1
         match_list = np.array(match_list)
         return match_list
+
+    def get_detection_rate(self, gt_file, md_file, width, height):
+        gt = self.read_kitti_file(gt_file)
+        md = self.read_motion_detection_file(md_file)
+        frame_count = gt[-1,0]
+
 
 rd = CompareAreas()
 match_list = rd.get_area_match_list("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
