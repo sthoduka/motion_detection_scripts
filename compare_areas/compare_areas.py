@@ -129,13 +129,16 @@ class CompareAreas:
 
             if no_detection:
                 continue
+
+            gt_mask = self.construct_single_mask(width, height, row[2:])
+            full_md_mask = np.zeros((height, width), dtype=bool)
             while True:
                 frame_md = md[md_index,0]
                 if frame_md != frame_gt:
                     break
                 else:
-                    gt_mask = self.construct_single_mask(width, height, row[2:])
                     md_mask = self.construct_single_mask(width, height, md[md_index,2:])
+                    full_md_mask = np.bitwise_or(full_md_mask, md_mask)
                     row2 = md[md_index]
 
                     plt.xlim([0,width])
@@ -167,6 +170,16 @@ class CompareAreas:
                     md_index += 1
                     if md_index >= md.shape[0]:
                         break
+
+            # check 1f multiple md rect cover one gt rect
+            if detected == False:
+                overlap_pixels = np.sum(np.bitwise_and(full_md_mask, gt_mask))
+                total_gt_pixels = np.sum(gt_mask)
+                if overlap_pixels > 0.4 * total_gt_pixels:
+                    detected = True
+                    detections[frame_gt] += 1
+                    total_detected +=1
+
             plt.title("Frame %d"%frame_gt)
             #plt.show()
         return objects, detections
@@ -256,13 +269,68 @@ class CompareAreas:
 
 
 rd = CompareAreas()
-o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
-om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
-print "0000: ", rd.get_stats(o,om,d,fd)
+data = []
+filenames = ["sigma_logs/0_5_2.log", "sigma_logs/0_5_3.log", "sigma_logs/0_5_4.log", "sigma_logs/0_5_5.log", \
+             "sigma_logs/1_5_2.log", "sigma_logs/1_5_3.log", "sigma_logs/1_5_4.log", "sigma_logs/1_5_5.log", \
+             "sigma_logs/3_2.log", "sigma_logs/3_3.log", "sigma_logs/3_4.log", "sigma_logs/3_5.log", \
+             "sigma_logs/5_2.log", "sigma_logs/5_3.log", "sigma_logs/5_4.log", "sigma_logs/5_5.log", \
+             "sigma_logs/8_2.log", "sigma_logs/8_3.log", "sigma_logs/8_4.log", "sigma_logs/8_5.log", \
+             "sigma_logs/12_2.log", "sigma_logs/12_3.log", "sigma_logs/12_4.log", "sigma_logs/12_5.log", \
+             "sigma_logs/20_2.log", "sigma_logs/20_3.log", "sigma_logs/20_4.log", "sigma_logs/20_5.log"]
+sigmas = [0.5, 0.5, 0.5, 0.5, 1.5, 1.5, 1.5, 1.5, 3.0, 3.0,3.0,3.0, 5.0, 5.0, 5.0, 5.0, 8.0, 8.0, 8.0, 8.0, 12.0, 12.0, 12.0, 12.0, 20.0, 20.0, 20.0, 20.0]
+motions = [2, 3, 4, 5, 2, 3, 4, 5,2, 3, 4, 5,2, 3, 4, 5,2, 3, 4, 5,2, 3, 4, 5,2, 3, 4, 5]
+
+for idx, f in enumerate(filenames):
+    o,d = rd.get_detection_rate("motion_gt/0001_motion.txt", f, 1242, 375)
+    om,fd = rd.get_false_detections("motion_gt/0001_motion.txt", f, 1242, 375)
+    stats = rd.get_stats(o,om,d,fd)
+    data.append([sigmas[idx], motions[idx], stats[1], stats[2], stats[3], stats[4]])
+
+print data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+#o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
+#om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
+#print "0000: ", rd.get_stats(o,om,d,fd)
+
 
 o,d = rd.get_detection_rate("motion_gt/0001_motion.txt", "motion_md/0001.log", 1242, 375)
 om,fd = rd.get_false_detections("motion_gt/0001_motion.txt", "motion_md/0001.log", 1242, 375)
 print "0001: ", rd.get_stats(o,om,d,fd)
+
 
 o,d = rd.get_detection_rate("motion_gt/0002_motion.txt", "motion_md/0002.log", 1242, 375)
 om,fd = rd.get_false_detections("motion_gt/0002_motion.txt", "motion_md/0002.log", 1242, 375)
@@ -340,6 +408,7 @@ print "0019: ", rd.get_stats(o,om,d,fd)
 o,d = rd.get_detection_rate("motion_gt/0020_motion.txt", "motion_md/0020.log", 1241, 376)
 om,fd = rd.get_false_detections("motion_gt/0020_motion.txt", "motion_md/0020.log", 1241, 376)
 print "0020: ", rd.get_stats(o,om,d,fd)
+'''
 
 '''
 total_objects = 0
