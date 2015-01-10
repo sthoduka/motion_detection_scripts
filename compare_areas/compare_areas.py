@@ -41,6 +41,16 @@ class CompareAreas:
             current_index += 1
         return mask, current_index
 
+    def construct_single_mask(self, width, height, corners):
+        mask = np.zeros((height, width), dtype=bool)
+        col_start = corners[0]
+        col_stop = corners[2]
+        row_start = corners[1]
+        row_stop = corners[3]
+        mask[row_start:row_stop, col_start:col_stop] = True
+        return mask
+        
+
     def get_confusion_matrix(self, gt_mask, md_mask):
         tp = np.sum(np.bitwise_and(gt_mask, md_mask))
         fp = np.sum(np.bitwise_and(md_mask, np.invert(gt_mask)))
@@ -72,14 +82,173 @@ class CompareAreas:
             match_list.append(match)
             frame_number += 1
         match_list = np.array(match_list)
-        return match_list
+        return match_list    
 
     def get_detection_rate(self, gt_file, md_file, width, height):
-        gt = self.read_kitti_file(gt_file)
-        md = self.read_motion_detection_file(md_file)
+        gt = self.read_kitti_file_with_id(gt_file)
+        md = self.read_motion_detection_file_with_id(md_file)
         frame_count = gt[-1,0]
 
+        md_index = 0
+        md_index_start = 0
+        total_detected = 0
+        objects = dict()
+        detections = dict()
 
+        for row in gt:
+            frame_gt = row[0]
+            if frame_gt in objects:
+                objects[frame_gt] += 1
+            else:
+                objects[frame_gt] = 1
+            if frame_gt not in detections:
+                detections[frame_gt] = 0
+            if frame_gt > 50:
+                break
+
+
+            obj_id_git = row[1]           
+            detected = False 
+            no_detection = False 
+            md_index = md_index_start
+            if md_index >= md.shape[0]:
+                break
+
+            while True:
+                frame_md = md[md_index,0]
+                if frame_md == frame_gt:
+                    md_index_start = md_index
+                    break
+                elif frame_md > frame_gt:
+                    no_detection = True
+                    break
+                else:
+                    md_index += 1
+                    if md_index >= md.shape[0]:
+                        no_detection = True
+                        md_index_start = md_index
+                        break
+
+            if no_detection:
+                continue
+            while True:
+                frame_md = md[md_index,0]
+                if frame_md != frame_gt:
+                    break
+                else:
+                    gt_mask = self.construct_single_mask(width, height, row[2:])
+                    md_mask = self.construct_single_mask(width, height, md[md_index,2:])
+                    row2 = md[md_index]
+
+                    plt.xlim([0,width])
+                    plt.ylim([0,height])
+                    plt.plot([row[2], row[4]], [row[3], row[3]], linewidth=1.0)
+                    plt.plot([row[2], row[2]], [row[3], row[5]], linewidth=1.0)
+
+                    plt.plot([row[4], row[2]], [row[5], row[5]], linewidth=1.0)
+                    plt.plot([row[4], row[4]], [row[3], row[5]], linewidth=1.0)
+
+                    plt.plot([row2[2], row2[4]], [row2[3], row2[3]], linewidth=1.5)
+                    plt.plot([row2[2], row2[2]], [row2[3], row2[5]], linewidth=1.5)
+
+                    plt.plot([row2[4], row2[2]], [row2[5], row2[5]], linewidth=1.5)
+                    plt.plot([row2[4], row2[4]], [row2[3], row2[5]], linewidth=1.5)
+
+                    total_gt_pixels = np.sum(gt_mask)
+                    total_md_pixels = np.sum(md_mask)
+                    overlap_pixels = np.sum(np.bitwise_and(gt_mask, md_mask))
+                    #print "overlap: ", overlap_pixels, " gt " , total_gt_pixels, " md " , total_md_pixels
+                    if overlap_pixels > 0.5 * total_gt_pixels or overlap_pixels > 0.9 * total_md_pixels:
+                        plt.plot([20,50],[20,50], linewidth=2.0)
+                        detected = True
+                        detections[frame_gt] += 1
+                        total_detected += 1
+                if detected:
+                    break
+                else:
+                    md_index += 1
+                    if md_index >= md.shape[0]:
+                        break
+            plt.title("Frame %d"%frame_gt)
+            plt.show()
+        return objects, detections
+
+    def get_false_detections(self, gt_file, md_file, width, height):
+        gt = self.read_kitti_file_with_id(gt_file)
+        md = self.read_motion_detection_file_with_id(md_file)
+        frame_count = gt[-1,0]
+
+        gt_index = 0
+        gt_index_start = 0
+        objects = dict()
+        detections = dict()
+
+        for row in md:
+            frame_md = row[0]
+
+            if frame_md in objects:
+                objects[frame_md] += 1
+            else:
+                objects[frame_md] = 1
+            if frame_md not in detections:
+                detections[frame_md] = 0
+
+            if frame_md > 50:
+                break
+
+            gt_index = gt_index_start
+            if gt_index >= gt.shape[0]:
+                break
+           
+            no_detection = False
+
+            while True:
+                frame_gt = gt[gt_index,0]
+                if frame_md == frame_gt:
+                    gt_index_start = gt_index
+                    break
+                elif frame_gt > frame_md:
+                    no_detection = True
+                    break
+                else:
+                    gt_index += 1
+                    if gt_index >= gt.shape[0]:
+                        no_detection = True
+                        gt_index_start = gt_index
+                        break
+
+            if no_detection:
+                continue
+
+            md_mask = self.construct_single_mask(width, height, row[2:])
+            gt_mask = np.zeros((height, width), dtype=bool)
+            while True:
+                frame_gt = gt[gt_index,0]
+                if frame_gt != frame_md:
+                    break
+                else:
+                    gt_mask_obj = self.construct_single_mask(width, height, gt[gt_index,2:])
+                    gt_mask = np.bitwise_or(gt_mask, gt_mask_obj)
+
+                gt_index += 1
+                if gt_index >= gt.shape[0]:
+                    break
+
+            num_overlap_pixels = np.sum(np.bitwise_and(md_mask, gt_mask))
+            total_md_pixels = np.sum(md_mask)
+            if num_overlap_pixels < 0.5 * total_md_pixels:
+                detections[frame_md] += 1
+                
+        return objects, detections
+
+
+rd = CompareAreas()
+o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
+#om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
+#for key in om:
+#    print "Frame ", key, " objects: ", om[key], " false detections ", fd[key]
+
+'''
 rd = CompareAreas()
 match_list = rd.get_area_match_list("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
 
@@ -123,3 +292,4 @@ plt.legend([tpr, precision, acc], ["TPR", "Precision", "Accuracy"])
 plt.title("Sequence 0003")
 plt.xlabel("Frame number")
 plt.show(block=True)
+'''
