@@ -103,8 +103,6 @@ class CompareAreas:
                 objects[frame_gt] = 1
             if frame_gt not in detections:
                 detections[frame_gt] = 0
-            if frame_gt > 50:
-                break
 
 
             obj_id_git = row[1]           
@@ -158,7 +156,7 @@ class CompareAreas:
                     total_md_pixels = np.sum(md_mask)
                     overlap_pixels = np.sum(np.bitwise_and(gt_mask, md_mask))
                     #print "overlap: ", overlap_pixels, " gt " , total_gt_pixels, " md " , total_md_pixels
-                    if overlap_pixels > 0.5 * total_gt_pixels or overlap_pixels > 0.9 * total_md_pixels:
+                    if overlap_pixels > 0.4 * total_gt_pixels or overlap_pixels > 0.9 * total_md_pixels:
                         plt.plot([20,50],[20,50], linewidth=2.0)
                         detected = True
                         detections[frame_gt] += 1
@@ -170,7 +168,7 @@ class CompareAreas:
                     if md_index >= md.shape[0]:
                         break
             plt.title("Frame %d"%frame_gt)
-            plt.show()
+            #plt.show()
         return objects, detections
 
     def get_false_detections(self, gt_file, md_file, width, height):
@@ -193,8 +191,6 @@ class CompareAreas:
             if frame_md not in detections:
                 detections[frame_md] = 0
 
-            if frame_md > 50:
-                break
 
             gt_index = gt_index_start
             if gt_index >= gt.shape[0]:
@@ -236,17 +232,137 @@ class CompareAreas:
 
             num_overlap_pixels = np.sum(np.bitwise_and(md_mask, gt_mask))
             total_md_pixels = np.sum(md_mask)
-            if num_overlap_pixels < 0.5 * total_md_pixels:
+            if num_overlap_pixels < 0.4 * total_md_pixels:
                 detections[frame_md] += 1
                 
         return objects, detections
 
+    def get_stats(self, o, om, d, fd):
+        total_objects = 0
+        correct = 0
+        false = 0
+        total_detections = 0
+        for key in o:
+            if key not in om:
+                om[key] = 0
+                fd[key] = 0
+            #print "Frame ", key, " objects: ", o[key], "correct detections ", d[key], " all detections: ", om[key], " false detections ", fd[key]
+            total_objects += o[key]
+            correct += d[key]
+            false += fd[key]
+            total_detections += om[key]
+
+        return [total_objects, correct, float(correct) * 100.0 / float(total_objects), total_detections, false, float(false) * 100.0 / float(total_detections)]
+
 
 rd = CompareAreas()
 o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
-#om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
-#for key in om:
-#    print "Frame ", key, " objects: ", om[key], " false detections ", fd[key]
+om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "motion_md/0000.log", 1242, 375)
+print "0000: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0001_motion.txt", "motion_md/0001.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0001_motion.txt", "motion_md/0001.log", 1242, 375)
+print "0001: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0002_motion.txt", "motion_md/0002.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0002_motion.txt", "motion_md/0002.log", 1242, 375)
+print "0002: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0003_motion.txt", "motion_md/0003.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0003_motion.txt", "motion_md/0003.log", 1242, 375)
+print "0003: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0004_motion.txt", "motion_md/0004.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0004_motion.txt", "motion_md/0004.log", 1242, 375)
+print "0004: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0005_motion.txt", "motion_md/0005.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0005_motion.txt", "motion_md/0005.log", 1242, 375)
+print "0005: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0006_motion.txt", "motion_md/0006.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0006_motion.txt", "motion_md/0006.log", 1242, 375)
+print "0006: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0007_motion.txt", "motion_md/0007.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0007_motion.txt", "motion_md/0007.log", 1242, 375)
+print "0007: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0008_motion.txt", "motion_md/0008.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0008_motion.txt", "motion_md/0008.log", 1242, 375)
+print "0008: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0009_motion.txt", "motion_md/0009.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0009_motion.txt", "motion_md/0009.log", 1242, 375)
+print "0009: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0010_motion.txt", "motion_md/0010.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0010_motion.txt", "motion_md/0010.log", 1242, 375)
+print "0010: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("motion_gt/0011_motion.txt", "motion_md/0011.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0011_motion.txt", "motion_md/0011.log", 1242, 375)
+print "0011: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0012_motion.txt", "motion_md/0012.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0012_motion.txt", "motion_md/0012.log", 1242, 375)
+print "0012: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0013_motion.txt", "motion_md/0013.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0013_motion.txt", "motion_md/0013.log", 1242, 375)
+print "0013: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0014_motion.txt", "motion_md/0014.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0014_motion.txt", "motion_md/0014.log", 1242, 375)
+print "0014: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0015_motion.txt", "motion_md/0015.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0015_motion.txt", "motion_md/0015.log", 1242, 375)
+print "0015: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0016_motion.txt", "motion_md/0016.log", 1224, 370)
+om,fd = rd.get_false_detections("motion_gt/0016_motion.txt", "motion_md/0016.log", 1224, 370)
+print "0016: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0017_motion.txt", "motion_md/0017.log", 1224, 370)
+om,fd = rd.get_false_detections("motion_gt/0017_motion.txt", "motion_md/0017.log", 1224, 370)
+print "0017: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0018_motion.txt", "motion_md/0018.log", 1238, 374)
+om,fd = rd.get_false_detections("motion_gt/0018_motion.txt", "motion_md/0018.log", 1238, 374)
+print "0018: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0019_motion.txt", "motion_md/0019.log", 1238, 374)
+om,fd = rd.get_false_detections("motion_gt/0019_motion.txt", "motion_md/0019.log", 1238, 374)
+print "0019: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0020_motion.txt", "motion_md/0020.log", 1241, 376)
+om,fd = rd.get_false_detections("motion_gt/0020_motion.txt", "motion_md/0020.log", 1241, 376)
+print "0020: ", rd.get_stats(o,om,d,fd)
+
+'''
+total_objects = 0
+correct = 0
+false = 0
+total_detections = 0
+for key in o:
+    if key not in om:
+        om[key] = 0
+        fd[key] = 0
+    #print "Frame ", key, " objects: ", o[key], "correct detections ", d[key], " all detections: ", om[key], " false detections ", fd[key]
+    total_objects += o[key]
+    correct += d[key]
+    false += fd[key]
+    total_detections += om[key]
+
+print "total: ", total_objects
+print "correct: ", correct
+print "percentage: " , float(correct) / float(total_objects)
+print "false: " , false
+print "total_det: ", total_detections
+print "percentage: ", float(false) / float(total_detections)
+'''
 
 '''
 rd = CompareAreas()
