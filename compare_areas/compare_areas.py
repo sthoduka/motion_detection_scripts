@@ -84,8 +84,11 @@ class CompareAreas:
         match_list = np.array(match_list)
         return match_list    
 
-    def get_detection_rate(self, gt_file, md_file, width, height):
-        gt = self.read_kitti_file_with_id(gt_file)
+    def get_detection_rate(self, gt_file, md_file, width, height, is_kitti=True):
+        if is_kitti:
+            gt = self.read_kitti_file_with_id(gt_file)
+        else:
+            gt = self.read_motion_detection_file_with_id(gt_file)
         md = self.read_motion_detection_file_with_id(md_file)
         frame_count = gt[-1,0]
 
@@ -110,7 +113,7 @@ class CompareAreas:
             no_detection = False 
             md_index = md_index_start
             if md_index >= md.shape[0]:
-                break
+                continue
 
             while True:
                 frame_md = md[md_index,0]
@@ -159,7 +162,7 @@ class CompareAreas:
                     total_md_pixels = np.sum(md_mask)
                     overlap_pixels = np.sum(np.bitwise_and(gt_mask, md_mask))
                     #print "overlap: ", overlap_pixels, " gt " , total_gt_pixels, " md " , total_md_pixels
-                    if overlap_pixels > 0.4 * total_gt_pixels or overlap_pixels > 0.9 * total_md_pixels:
+                    if overlap_pixels > 0.4 * total_gt_pixels:# or overlap_pixels > 0.9 * total_md_pixels:
                         plt.plot([20,50],[20,50], linewidth=2.0)
                         detected = True
                         detections[frame_gt] += 1
@@ -184,8 +187,11 @@ class CompareAreas:
             #plt.show()
         return objects, detections
 
-    def get_false_detections(self, gt_file, md_file, width, height):
-        gt = self.read_kitti_file_with_id(gt_file)
+    def get_false_detections(self, gt_file, md_file, width, height, is_kitti=True):
+        if is_kitti:
+            gt = self.read_kitti_file_with_id(gt_file)
+        else:
+            gt = self.read_motion_detection_file_with_id(gt_file)
         md = self.read_motion_detection_file_with_id(md_file)
         frame_count = gt[-1,0]
 
@@ -269,6 +275,7 @@ class CompareAreas:
 
 
 rd = CompareAreas()
+'''
 data = []
 filenames = ["sigma_logs/0_5_2.log", "sigma_logs/0_5_3.log", "sigma_logs/0_5_4.log", "sigma_logs/0_5_5.log", \
              "sigma_logs/1_5_2.log", "sigma_logs/1_5_3.log", "sigma_logs/1_5_4.log", "sigma_logs/1_5_5.log", \
@@ -287,35 +294,137 @@ for idx, f in enumerate(filenames):
     data.append([sigmas[idx], motions[idx], stats[1], stats[2], stats[3], stats[4]])
 
 print data
+'''
+
+'''
+o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "pixel_logs/3.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "pixel_logs/3.log", 1242, 375)
+print "3: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "pixel_logs/5.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "pixel_logs/5.log", 1242, 375)
+print "5: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "pixel_logs/8.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "pixel_logs/8.log", 1242, 375)
+print "8: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "pixel_logs/10.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "pixel_logs/10.log", 1242, 375)
+print "10: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "pixel_logs/15.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "pixel_logs/15.log", 1242, 375)
+print "15: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "pixel_logs/20.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "pixel_logs/20.log", 1242, 375)
+print "20: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("motion_gt/0000_motion.txt", "pixel_logs/40.log", 1242, 375)
+om,fd = rd.get_false_detections("motion_gt/0000_motion.txt", "pixel_logs/40.log", 1242, 375)
+print "40: ", rd.get_stats(o,om,d,fd)
+
+'''
+
+'''
+
+o,d = rd.get_detection_rate("static_camera/gt/10/1.log", "static_camera/md/10/1.log", 320, 240, False)
+om,fd = rd.get_false_detections("static_camera/gt/10/1.log", "static_camera/md/10/1.log", 320, 240, False)
+print "10_1: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("static_camera/gt/10/2.log", "static_camera/md/10/2.log", 320, 240, False)
+om,fd = rd.get_false_detections("static_camera/gt/10/2.log", "static_camera/md/10/2.log", 320, 240, False)
+print "10_2: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("static_camera/gt/10/3.log", "static_camera/md/10/3.log", 320, 240, False)
+om,fd = rd.get_false_detections("static_camera/gt/10/3.log", "static_camera/md/10/3.log", 320, 240, False)
+print "10_3: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("static_camera/gt/10/4.log", "static_camera/md/10/4.log", 320, 240, False)
+om,fd = rd.get_false_detections("static_camera/gt/10/4.log", "static_camera/md/10/4.log", 320, 240, False)
+print "10_4: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("static_camera/gt/10/5.log", "static_camera/md/10/5.log", 320, 240, False)
+om,fd = rd.get_false_detections("static_camera/gt/10/5.log", "static_camera/md/10/5.log", 320, 240, False)
+print "10_5: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("static_camera/gt/9/1.log", "static_camera/md/9/1.log", 320, 240, False)
+om,fd = rd.get_false_detections("static_camera/gt/9/1.log", "static_camera/md/9/1.log", 320, 240, False)
+print "9_1: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("static_camera/gt/9/2.log", "static_camera/md/9/2.log", 320, 240, False)
+om,fd = rd.get_false_detections("static_camera/gt/9/2.log", "static_camera/md/9/2.log", 320, 240, False)
+print "9_2: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("static_camera/gt/9/3.log", "static_camera/md/9/3.log", 320, 240, False)
+om,fd = rd.get_false_detections("static_camera/gt/9/3.log", "static_camera/md/9/3.log", 320, 240, False)
+print "9_3: ", rd.get_stats(o,om,d,fd)
+
+'''
+
+'''
+
+o,d = rd.get_detection_rate("moving_camera/gt/3/1.log", "moving_camera/md/3/1.log", 320, 240, False)
+om,fd = rd.get_false_detections("moving_camera/gt/3/1.log", "moving_camera/md/3/1.log", 320, 240, False)
+print "3_1: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("moving_camera/gt/3/2.log", "moving_camera/md/3/2.log", 320, 240, False)
+om,fd = rd.get_false_detections("moving_camera/gt/3/2.log", "moving_camera/md/3/2.log", 320, 240, False)
+print "3_2: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("moving_camera/gt/3/3.log", "moving_camera/md/3/3.log", 320, 240, False)
+om,fd = rd.get_false_detections("moving_camera/gt/3/3.log", "moving_camera/md/3/3.log", 320, 240, False)
+print "3_3: ", rd.get_stats(o,om,d,fd)
+
+o,d = rd.get_detection_rate("moving_camera/gt/5/1.log", "moving_camera/md/5/1.log", 320, 240, False)
+om,fd = rd.get_false_detections("moving_camera/gt/5/1.log", "moving_camera/md/5/1.log", 320, 240, False)
+print "5_1: ", rd.get_stats(o,om,d,fd)
 
 
 
+o,d = rd.get_detection_rate("moving_camera/gt/5/4.log", "moving_camera/md/5/4.log", 320, 240, False)
+om,fd = rd.get_false_detections("moving_camera/gt/5/4.log", "moving_camera/md/5/4.log", 320, 240, False)
+print "5_4: ", rd.get_stats(o,om,d,fd)
+
+
+o,d = rd.get_detection_rate("moving_camera/gt/5/5.log", "moving_camera/md/5/5.log", 320, 240, False)
+om,fd = rd.get_false_detections("moving_camera/gt/5/5.log", "moving_camera/md/5/5.log", 320, 240, False)
+print "5_5: ", rd.get_stats(o,om,d,fd)
 
 
 
+o,d = rd.get_detection_rate("moving_camera/gt/3/4.log", "moving_camera/md/3/4.log", 320, 240, False)
+om,fd = rd.get_false_detections("moving_camera/gt/3/4.log", "moving_camera/md/3/4.log", 320, 240, False)
+print "3_4: ", rd.get_stats(o,om,d,fd)
 
 
+'''
+
+o,d = rd.get_detection_rate("conveyor/gt/11/1.log", "conveyor/md/11/1.log", 640, 480, False)
+om,fd = rd.get_false_detections("conveyor/gt/11/1.log", "conveyor/md/11/1.log", 640, 480, False)
+print "11_1: ", rd.get_stats(o,om,d,fd)
 
 
+o,d = rd.get_detection_rate("conveyor/gt/11/2.log", "conveyor/md/11/2.log", 640, 480, False)
+om,fd = rd.get_false_detections("conveyor/gt/11/2.log", "conveyor/md/11/2.log", 640, 480, False)
+print "11_2: ", rd.get_stats(o,om,d,fd)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+o,d = rd.get_detection_rate("conveyor/gt/11/3.log", "conveyor/md/11/3.log", 640, 480, False)
+om,fd = rd.get_false_detections("conveyor/gt/11/3.log", "conveyor/md/11/3.log", 640, 480, False)
+print "11_3: ", rd.get_stats(o,om,d,fd)
 
 
 

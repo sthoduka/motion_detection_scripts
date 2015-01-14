@@ -23,7 +23,7 @@ def get_fit_error(data, num_motions):
     proj = np.empty((n,n))
     proj_residual = np.empty((data.shape[1],1))
     print "data: " , data.shape
-    for i in xrange(100):
+    for i in xrange(2):
         num = 0
         d = 4*m
         rand_indices = np.random.randint(data.shape[1], size=d)

@@ -20,8 +20,8 @@ class EgomotionFlow:
         return self.length, 0.0
 
     def move_right(self, x, y):
-        return self.length*(random.random() - 0.5)-self.length, 0.1*self.length*(random.random() - 0.5)
-        #return -self.length, 0.0
+        #return self.length*(random.random() - 0.5)-self.length, 0.1*self.length*(random.random() - 0.5)
+        return -self.length, 0.0
 
     def rotate_ccw(self, x, y):
         theta = np.arctan2(y,x) + np.pi / 2.0
@@ -47,10 +47,10 @@ class EgomotionFlow:
     def get_backward_trans(self, x_size, y_size, step):
         x_lim = x_size / 2
         y_lim = y_size / 2
-        dx = np.zeros((x_size, y_size))
-        dy = np.zeros((x_size, y_size))
-        for i in np.arange(-x_lim, x_lim, step):
-            for j in np.arange(-y_lim, y_lim, step):
+        dx = np.zeros((x_size+step, y_size+step))
+        dy = np.zeros((x_size+step, y_size+step))
+        for i in np.arange(-x_lim, x_lim+step, step):
+            for j in np.arange(-y_lim, y_lim+step, step):
                 if i != 0.0 or j != 0.0:
                     xdiff, ydiff = self.converge(i, j);
                     dx[i + x_lim, j + y_lim] = xdiff
@@ -72,6 +72,10 @@ class EgomotionFlow:
     def get_right_trans(self, x_size, y_size, step):
         x_lim = x_size / 2
         y_lim = y_size / 2
+        #dx = np.zeros((x_size+step, y_size+step))
+        #dy = np.zeros((x_size+step, y_size+step))
+        #for i in np.arange(-x_lim+step, x_lim+step, step):
+        #    for j in np.arange(-y_lim+step, y_lim+step, step):
         dx = np.zeros((x_size, y_size))
         dy = np.zeros((x_size, y_size))
         for i in np.arange(-x_lim, x_lim, step):
@@ -84,10 +88,10 @@ class EgomotionFlow:
     def get_cw_rot(self, x_size, y_size, step):
         x_lim = x_size / 2
         y_lim = y_size / 2
-        dx = np.zeros((x_size, y_size))
-        dy = np.zeros((x_size, y_size))
-        for i in np.arange(-x_lim, x_lim, step):
-            for j in np.arange(-y_lim, y_lim, step):
+        dx = np.zeros((x_size+step, y_size+step))
+        dy = np.zeros((x_size+step, y_size+step))
+        for i in np.arange(-x_lim, x_lim+step, step):
+            for j in np.arange(-y_lim, y_lim+step, step):
                 if i != 0.0 or j != 0.0:
                     xdiff, ydiff = self.rotate_cw(i, j);
                     dx[i + x_lim, j + y_lim] = xdiff
@@ -97,10 +101,10 @@ class EgomotionFlow:
     def get_ccw_rot(self, x_size, y_size, step):
         x_lim = x_size / 2
         y_lim = y_size / 2
-        dx = np.zeros((x_size, y_size))
-        dy = np.zeros((x_size, y_size))
-        for i in np.arange(-x_lim, x_lim, step):
-            for j in np.arange(-y_lim, y_lim, step):
+        dx = np.zeros((x_size+step, y_size+step))
+        dy = np.zeros((x_size+step, y_size+step))
+        for i in np.arange(-x_lim, x_lim+step, step):
+            for j in np.arange(-y_lim, y_lim+step, step):
                 if i != 0.0 or j != 0.0:
                     xdiff, ydiff = self.rotate_ccw(i, j);
                     dx[i + x_lim, j + y_lim] = xdiff

@@ -14,8 +14,8 @@ step = 10
 
 mf = MotionFlow()
 ef = EgomotionFlow()
-mf.length = 4.0
-ef.length = 0.5
+mf.length = 8.0
+ef.length = 4.0 
 
 plt.ylim([0,height])
 plt.xlim([0,width])
@@ -23,7 +23,7 @@ plt.xlim([0,width])
 
 dx, dy = ef.get_right_trans(width, height, step)
 mx, my = mf.get_move_down(width, height, 100, 100, 50, 50, step)
-nx, ny = mf.get_move_up(width, height, 210, 200, 20, 20, step)
+nx, ny = mf.get_move_down(width, height, 210, 200, 20, 20, step)
 
 dx = dx + mx + nx
 dy = dy + my + ny
@@ -45,7 +45,7 @@ traj = tf.create_trajectory(dx,dy,10)
 np.savetxt('test.out', traj, fmt='%.4f', delimiter=',')
 traj = np.loadtxt("test.out", dtype=np.float64, delimiter=',')
 trajcopy = traj.copy()
-residuals, index = get_fit_error(trajcopy, 2)
+residuals, index = get_fit_error(trajcopy, 1)
 plt.plot(residuals)
 plt.xlabel("Trajectory index")
 plt.ylabel("Residual")
