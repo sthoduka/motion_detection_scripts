@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+# fit_subspace.py
+
+# Copyright (C) 2014 Santosh Thoduka
+
+# This software may be modified and distributed under the terms
+# of the MIT license.  See the LICENSE file for details.
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm

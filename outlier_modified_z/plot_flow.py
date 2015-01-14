@@ -1,3 +1,10 @@
+#plot_flow.py
+#
+# Copyright (C) 2014 Santosh Thoduka
+#
+# This software may be modified and distributed under the terms
+# of the MIT license.
+
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 #import pylab
